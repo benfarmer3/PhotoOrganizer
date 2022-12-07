@@ -52,6 +52,7 @@
             this.SourceFolder.Name = "SourceFolder";
             this.SourceFolder.Size = new System.Drawing.Size(549, 37);
             this.SourceFolder.TabIndex = 1;
+            this.SourceFolder.Text = "G:\\FolderEasierToScan";
             // 
             // DestFolder
             // 

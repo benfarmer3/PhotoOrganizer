@@ -6,37 +6,32 @@ namespace PhotoOrganiser.DataBase
 {
     public class DataBaseManager
     {
-        private string appDataPath;
-        private string dbDirectory;
-        private string dbPath;
+        private static string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        private static string dbDirectory = Path.Combine(appDataPath, "BenFarmer\\PhotoOrganiser");
+        private static string dbPath = Path.Combine(dbDirectory, "photos.sqlite");
 
         //SQL Commands
-        private string sqlCreateString = "CREATE TABLE Photos (Hash text NOT NULL PRIMARY KEY, Name text NOT NULL, Extension text NOT NULL,Path text NOT NULL, Duplicate bit NOT NULL);";
-        private string sqlInsertString = "insert into Photos ([Hash], [Name], [Extension], [Path], [Duplicate]) values(@Hash,@Name,@Extension, @Path, @Duplicate)";
+        private static string sqlCreateString = "CREATE TABLE Photos (Name text NOT NULL, Extension text NOT NULL,Path text NOT NULL, Duplicate bit NOT NULL);";
+        private static string sqlInsertString = "insert into Photos ([Name], [Extension], [Path], [Duplicate]) values(@Name,@Extension, @Path, @Duplicate)";
+        
+        private static SQLiteConnection connection;
 
-
-        public DataBaseManager()
-        {
-            appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            dbDirectory = Path.Combine(appDataPath, "BenFarmer\\PhotoOrganiser");
-            dbPath = Path.Combine(dbDirectory, "photos.sqlite");
-
-        }
-
-        public void CreateDb()
+        public static void CreateDb()
         {
             if (!DoesDbExist())
             {
                 Directory.CreateDirectory(dbDirectory);
                 SQLiteConnection.CreateFile(dbPath);
-
-                var connection = GetConnection();
-                SQLiteCommand createCommand = new SQLiteCommand(sqlCreateString, connection);
+                connection = new SQLiteConnection($"Data Source={dbPath};Version=3;");
                 connection.Open();
+                SQLiteCommand createCommand = new SQLiteCommand(sqlCreateString, connection);
                 createCommand.ExecuteNonQuery();
-
             }
-
+            else
+            {
+                connection = new SQLiteConnection($"Data Source={dbPath};Version=3;");
+                connection.Open();
+            }
         }
 
         public SQLiteConnection GetConnection()
@@ -44,14 +39,13 @@ namespace PhotoOrganiser.DataBase
             return new SQLiteConnection($"Data Source={dbPath};Version=3;");
         }
 
-        public void AddImage(string hash, string name, string extension, string path, bool duplicate)
+        public static void AddImage(string hash, string name, string extension, string path, bool duplicate)
         {
-            var connection = GetConnection();
-            connection.Open();
+            
 
             using (SQLiteCommand cmd = new SQLiteCommand(sqlInsertString, connection))
             {
-                cmd.Parameters.Add("@Hash", System.Data.DbType.String).Value = hash;
+                //cmd.Parameters.Add("@Hash", System.Data.DbType.String).Value = hash;
                 cmd.Parameters.Add("@Name", System.Data.DbType.String).Value = name;
                 cmd.Parameters.Add("@Extension", System.Data.DbType.String).Value = extension;
                 cmd.Parameters.Add("@Path", System.Data.DbType.String).Value = path;
@@ -67,7 +61,7 @@ namespace PhotoOrganiser.DataBase
 
         }
 
-        private bool DoesDbExist()
+        private static bool DoesDbExist()
         {
             return File.Exists(dbPath);
         }
