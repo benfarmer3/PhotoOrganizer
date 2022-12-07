@@ -11,8 +11,8 @@ namespace PhotoOrganiser.DataBase
         private string dbPath;
 
         //SQL Commands
-        private string sqlCreateString = "CREATE TABLE Photos (Hash text NOT NULL PRIMARY KEY, Name text NOT NULL, Extension text NOT NULL,Path text NOT NULL);";
-        private string sqlInsertString = "insert into Photos ([Hash], [Name], [Extension], [Path]) values(@Hash,@Name,@Extension, @Path)";
+        private string sqlCreateString = "CREATE TABLE Photos (Hash text NOT NULL PRIMARY KEY, Name text NOT NULL, Extension text NOT NULL,Path text NOT NULL, Duplicate bit NOT NULL);";
+        private string sqlInsertString = "insert into Photos ([Hash], [Name], [Extension], [Path], [Duplicate]) values(@Hash,@Name,@Extension, @Path, @Duplicate)";
 
 
         public DataBaseManager()
@@ -44,7 +44,7 @@ namespace PhotoOrganiser.DataBase
             return new SQLiteConnection($"Data Source={dbPath};Version=3;");
         }
 
-        public void AddImage(string hash, string name, string extension, string path)
+        public void AddImage(string hash, string name, string extension, string path, bool duplicate)
         {
             var connection = GetConnection();
             connection.Open();
@@ -55,6 +55,7 @@ namespace PhotoOrganiser.DataBase
                 cmd.Parameters.Add("@Name", System.Data.DbType.String).Value = name;
                 cmd.Parameters.Add("@Extension", System.Data.DbType.String).Value = extension;
                 cmd.Parameters.Add("@Path", System.Data.DbType.String).Value = path;
+                cmd.Parameters.Add("@Duplicate", System.Data.DbType.Boolean).Value = duplicate;
 
                 int rowsAffected = cmd.ExecuteNonQuery();
                 if(rowsAffected > 0)

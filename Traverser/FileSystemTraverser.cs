@@ -1,6 +1,7 @@
 ﻿using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using PhotoOrganiser.DataBase;
+using System.Collections;
 using System.Text;
 using XSystem.Security.Cryptography;
 
@@ -8,7 +9,7 @@ namespace PhotoOrganiser.Traverser
 {
     internal class FileSystemTraverser
     {
-
+        private Hashtable photoHash = new Hashtable();
         private DataBaseManager dbManager;
 
         public FileSystemTraverser(DataBaseManager dbManager)
@@ -71,13 +72,17 @@ namespace PhotoOrganiser.Traverser
         private void GetImageExifData(FileInfo file)
         {
             var directories = ImageMetadataReader.ReadMetadata(file.FullName);
-
             var hash = GetHash(file.FullName);
             var name = file.Name;
             var extension = file.Extension;
             var path = file.FullName;
 
-            dbManager.AddImage(hash, name, extension, path);
+            if (photoHash.ContainsKey(hash))
+            {
+                dbManager.AddImage(hash, name, extension, path, true);
+                return;
+            }
+            dbManager.AddImage(hash, name, extension, path, false);
 
         }
         static string GetHash(string path)
