@@ -8,4 +8,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MetadataExtractor" Version="2.7.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
+    <PackageReference Include="XAct.Core.PCL" Version="0.0.5014" />
+  </ItemGroup>
+
 </Project>
