@@ -7,13 +7,14 @@ namespace PhotoOrganiser
     {
         private string destinationFolder = string.Empty;
         private string sourceFolder = string.Empty;
-        private FileSystemTraverser traverser = new FileSystemTraverser();
-        
+        private FileSystemTraverser traverser;
+        private DataBaseManager dbManager = new DataBaseManager();
 
         public MainForm()
         {
             InitializeComponent();
-            DataBaseManager.CreateDb();
+            dbManager.CreateDb();
+            traverser = new FileSystemTraverser(dbManager);
 
         }
 

@@ -1,35 +1,26 @@
-﻿using MetadataExtractor.Formats.Exif;
-using MetadataExtractor;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualBasic.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
+using PhotoOrganiser.DataBase;
 using System.Text;
-using System.Threading.Tasks;
 using XSystem.Security.Cryptography;
 
 namespace PhotoOrganiser.Traverser
 {
     internal class FileSystemTraverser
     {
-        private static readonly string[] _validExtensions = { "jpg", "bmp", "gif", "png", "jpeg", "tiff", }; //  etc
-        private ImageContext? dbImageContext = new ImageContext();
-        private static List<FileInfo> test = new List<FileInfo>();
 
+        private DataBaseManager dbManager;
 
-        public FileSystemTraverser()
+        public FileSystemTraverser(DataBaseManager dbManager)
         {
-            
+            this.dbManager = dbManager;
         }
 
-
         static string[] mediaExtensions = {
-            ".PNG", ".JPG", ".JPEG", ".BMP", ".GIF", //etc
-            ".WAV", ".MID", ".MIDI", ".WMA", ".MP3", ".OGG", ".RMA", //etc
+            ".PNG", ".JPG", ".JPEG", ".BMP", ".GIF", 
+            ".WAV", ".MID", ".MIDI", ".WMA", ".MP3", ".OGG", ".RMA", 
             ".AVI", ".MP4", ".DIVX", ".WMV", ".MP4", ".RAW", ".MOV", ".PSD",
             ".EPS", ".PDF", ".TIF", ".SVG", ".DNP", ".MKV",
-            //etc
         };
 
         private static bool IsMediaFile(string path)
@@ -63,7 +54,6 @@ namespace PhotoOrganiser.Traverser
                 {
                     if (IsMediaFile(file.FullName))
                     {
-                        test.Add(file);
                         StoreImageData(file);
                     }
                 }
@@ -82,16 +72,13 @@ namespace PhotoOrganiser.Traverser
         {
             var directories = ImageMetadataReader.ReadMetadata(file.FullName);
 
-            // print out all metadata
-            foreach (var directory in directories)
-                foreach (var tag in directory.Tags)
-                    Console.WriteLine($"{directory.Name} - {tag.Name} = {tag.Description}");
+            var hash = GetHash(file.FullName);
+            var name = file.Name;
+            var extension = file.Extension;
+            var path = file.FullName;
 
-           
+            dbManager.AddImage(hash, name, extension, path);
 
-            // access the date time
-            var subIfdDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
-            var dateTime = subIfdDirectory?.GetDateTime(ExifDirectoryBase.TagDateTime);
         }
         static string GetHash(string path)
         {
@@ -104,13 +91,7 @@ namespace PhotoOrganiser.Traverser
         private void StoreImageData(FileInfo image)
         {
             GetImageExifData(image);
-/*
-            if (dbImageContext != null)
-            {
-                dbImageContext.Add(image);
-                dbImageContext.SaveChanges();                
-            }
-*/
+
         }
     }
 }
