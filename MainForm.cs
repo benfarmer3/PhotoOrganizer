@@ -10,8 +10,8 @@ namespace PhotoOrganiser
         private FileSystemTraverser traverser;
 
         public MainForm()
-        {        
-            traverser = new FileSystemTraverser(this);
+        {
+            traverser = new FileSystemTraverser(UpdateValues, UpdateFolder);
             InitializeComponent();
             DataBaseManager.CreateDb();
         }
@@ -22,20 +22,29 @@ namespace PhotoOrganiser
             sourceFolder = SourceFolder.Text;
 
             await Task.Run(() => traverser.StartTraversal(sourceFolder));
-            
+
         }
 
-        private delegate void NameCallBack(string varText);
-        public void UpdateTextBox(string input)
+        public void UpdateFolder(string currentDir)
         {
-            if (InvokeRequired)
-            {
-                TotalPhotos.BeginInvoke(new NameCallBack(UpdateTextBox), new object[] { input });
-            }
-            else
-            {
-                TotalPhotos.Text = input;
-            }
+            ChangeTextBox(Searching, currentDir);
         }
+
+        public void UpdateValues(string totalPhotos, string totalDupplicates, string totalExif)
+        {
+            ChangeTextBox(TotalPhotos, totalPhotos);
+            ChangeTextBox(TotalDuplicates, totalDupplicates);
+            ChangeTextBox(TotalNoExif, totalExif);
+        }
+
+        public void ChangeTextBox(TextBox textBox, string text)
+        {
+            if (textBox.InvokeRequired)
+                textBox.Invoke(new MethodInvoker(() => textBox.Text = text));
+            else
+                textBox.Text = text;
+        }
+
+
     }
 }

@@ -1,9 +1,7 @@
 ﻿using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
-using Microsoft.Extensions.Logging;
 using PhotoOrganiser.DataBase;
 using System.Collections;
-using PhotoOrganiser.UpdateUI;
 
 namespace PhotoOrganiser.Traverser
 {
@@ -11,16 +9,19 @@ namespace PhotoOrganiser.Traverser
     {
 
        // private readonly ILogger _logger;
-        private MainForm _mainForm;
 
         private Hashtable photoHash = new Hashtable();
         private int totalPhotos = 0;
         private int totalNoExifPhotos = 0;
         private int totalDuplicatePhotos = 0;
 
-        public FileSystemTraverser(MainForm mainForm)
+        private Action<string, string, string> _updateValues; 
+        private Action<string> _updateCurrentFolder;
+
+        public FileSystemTraverser(Action<string,string, string> updateValues, Action<string> updateCurrentFolder)
         {
-            _mainForm = mainForm;   
+            _updateValues = updateValues;
+            _updateCurrentFolder = updateCurrentFolder;
         }
 
         static string[] mediaExtensions = {
@@ -54,7 +55,7 @@ namespace PhotoOrganiser.Traverser
             {
                 //log.Add(e.Message);
             }
-            UpdateSearch(root.FullName);
+            _updateCurrentFolder(root.FullName);
 
             if (files != null)
             {
@@ -63,7 +64,7 @@ namespace PhotoOrganiser.Traverser
                     if (IsMediaFile(file.FullName))
                     {
                         StoreImageData(file);
-                        UpdateValues();
+                        _updateValues(totalPhotos.ToString(), totalDuplicatePhotos.ToString(), totalNoExifPhotos.ToString());
                     }
                 }
 
@@ -118,7 +119,7 @@ namespace PhotoOrganiser.Traverser
         {
             GetImageExifData(image);
             totalPhotos++;
-            UiUpdater.UpdateTextBox(_mainForm.TotalPhotos, totalPhotos.ToString());
+            _updateValues(totalPhotos.ToString(), totalDuplicatePhotos.ToString(), totalNoExifPhotos.ToString());
         }
 
         public string? GenerateHashFromFile(FileInfo file)
@@ -155,16 +156,5 @@ namespace PhotoOrganiser.Traverser
             }
         }
 
-        private void UpdateSearch(string currentPath)
-        {
-            UiUpdater.UpdateTextBox(_mainForm.Searching, currentPath);
-        }
-
-        private void UpdateValues()
-        {
-            UiUpdater.UpdateTextBox(_mainForm.TotalPhotos, totalPhotos.ToString());
-            UiUpdater.UpdateTextBox(_mainForm.TotalDuplicates, totalDuplicatePhotos.ToString());
-            UiUpdater.UpdateTextBox(_mainForm.TotalNoExif, totalNoExifPhotos.ToString());
-        }
     }
 }
