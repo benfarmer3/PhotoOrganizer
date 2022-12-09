@@ -7,19 +7,35 @@ namespace PhotoOrganiser
     {
         private string destinationFolder = string.Empty;
         private string sourceFolder = string.Empty;
-        private FileSystemTraverser traverser = new FileSystemTraverser();
+        private FileSystemTraverser traverser;
 
         public MainForm()
-        {
+        {        
+            traverser = new FileSystemTraverser(this);
             InitializeComponent();
             DataBaseManager.CreateDb();
         }
 
-        private void StartButton_Click(object sender, EventArgs e)
+        private async void StartButton_Click(object sender, EventArgs e)
         {
             destinationFolder = DestFolder.Text;
             sourceFolder = SourceFolder.Text;
-            traverser.StartTraversal(sourceFolder);
+
+            await Task.Run(() => traverser.StartTraversal(sourceFolder));
+            
+        }
+
+        private delegate void NameCallBack(string varText);
+        public void UpdateTextBox(string input)
+        {
+            if (InvokeRequired)
+            {
+                TotalPhotos.BeginInvoke(new NameCallBack(UpdateTextBox), new object[] { input });
+            }
+            else
+            {
+                TotalPhotos.Text = input;
+            }
         }
     }
 }

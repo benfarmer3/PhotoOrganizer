@@ -1,24 +1,26 @@
 ﻿using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
+using Microsoft.Extensions.Logging;
 using PhotoOrganiser.DataBase;
-using System;
 using System.Collections;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using XAct.Security;
-using XSystem.Security.Cryptography;
+using PhotoOrganiser.UpdateUI;
 
 namespace PhotoOrganiser.Traverser
 {
     internal class FileSystemTraverser
     {
+
+       // private readonly ILogger _logger;
+        private MainForm _mainForm;
+
         private Hashtable photoHash = new Hashtable();
+        private int totalPhotos = 0;
+        private int totalNoExifPhotos = 0;
+        private int totalDuplicatePhotos = 0;
 
-        public FileSystemTraverser()
+        public FileSystemTraverser(MainForm mainForm)
         {
-
+            _mainForm = mainForm;   
         }
 
         static string[] mediaExtensions = {
@@ -52,14 +54,16 @@ namespace PhotoOrganiser.Traverser
             {
                 //log.Add(e.Message);
             }
+            UpdateSearch(root.FullName);
 
-            if(files != null)
+            if (files != null)
             {
                 foreach (FileInfo file in files)
                 {
                     if (IsMediaFile(file.FullName))
                     {
                         StoreImageData(file);
+                        UpdateValues();
                     }
                 }
 
@@ -78,7 +82,8 @@ namespace PhotoOrganiser.Traverser
             var hash = GenerateHashFromFile(file);
             if(hash == null)
             {
-                // no exif data
+                totalNoExifPhotos++;
+                return;
             }
             var name = file.Name;
             var extension = file.Extension;
@@ -86,12 +91,12 @@ namespace PhotoOrganiser.Traverser
 
             if (photoHash.ContainsKey(hash))
             {
+                totalDuplicatePhotos++;
                 DataBaseManager.AddImage(hash, name, extension, path, true);
                 return;
             }
             photoHash.Add(hash,file.Name);
             DataBaseManager.AddImage(hash, name, extension, path, false);
-
         }
 
         internal static string GetStringSha256Hash(string text)
@@ -109,6 +114,13 @@ namespace PhotoOrganiser.Traverser
             }
         }
 
+        private void StoreImageData(FileInfo image)
+        {
+            GetImageExifData(image);
+            totalPhotos++;
+            UiUpdater.UpdateTextBox(_mainForm.TotalPhotos, totalPhotos.ToString());
+        }
+
         public string? GenerateHashFromFile(FileInfo file)
         {
             var dateTaken = GetDateTakenFromImage(file.FullName).ToString();
@@ -120,19 +132,6 @@ namespace PhotoOrganiser.Traverser
             return GetStringSha256Hash(imageData);
         }
 
-        public byte[] GetHash(string inputString)
-        {
-            using (HashAlgorithm algorithm = SHA256.Create())
-                return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
-        }
-
-        private void StoreImageData(FileInfo image)
-        {
-            GetImageExifData(image);
-
-        }
-        private static Regex r = new Regex(":");
-
         public static DateTime? GetDateTakenFromImage(string path)
         {
             using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
@@ -140,10 +139,8 @@ namespace PhotoOrganiser.Traverser
 
                 var directories = ImageMetadataReader.ReadMetadata(fs);
 
-                // Find the so-called Exif "SubIFD" (which may be null)
                 var subIfdDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
 
-                // Read the DateTime tag value
                 try
                 {
                     var dateTime = subIfdDirectory?.GetDateTime(ExifDirectoryBase.TagDateTimeOriginal);
@@ -156,6 +153,18 @@ namespace PhotoOrganiser.Traverser
                 }
 
             }
+        }
+
+        private void UpdateSearch(string currentPath)
+        {
+            UiUpdater.UpdateTextBox(_mainForm.Searching, currentPath);
+        }
+
+        private void UpdateValues()
+        {
+            UiUpdater.UpdateTextBox(_mainForm.TotalPhotos, totalPhotos.ToString());
+            UiUpdater.UpdateTextBox(_mainForm.TotalDuplicates, totalDuplicatePhotos.ToString());
+            UiUpdater.UpdateTextBox(_mainForm.TotalNoExif, totalNoExifPhotos.ToString());
         }
     }
 }
