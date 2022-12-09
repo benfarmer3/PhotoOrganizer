@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Collections.Generic;
-using System.Data.SQLite;
+﻿using System.Data.SQLite;
 
 namespace PhotoOrganiser.DataBase
 {
@@ -11,8 +9,8 @@ namespace PhotoOrganiser.DataBase
         private static string dbPath = Path.Combine(dbDirectory, "photos.sqlite");
 
         //SQL Commands
-        private static string sqlCreateString = "CREATE TABLE Photos (Name text NOT NULL, Extension text NOT NULL,Path text NOT NULL, Duplicate bit NOT NULL);";
-        private static string sqlInsertString = "insert into Photos ([Name], [Extension], [Path], [Duplicate]) values(@Name,@Extension, @Path, @Duplicate)";
+        private static string sqlCreateString = "CREATE TABLE Photos (Name text NOT NULL, Extension text NOT NULL,Path text NOT NULL, Duplicate bit NOT NULL, NoExif text NOT NULL);";
+        private static string sqlInsertString = "insert into Photos ([Name], [Extension], [Path], [NoExif], [Duplicate]) values(@Name,@Extension, @Path, @Duplicate, @NoExif)";
         
         private static SQLiteConnection connection;
 
@@ -34,14 +32,10 @@ namespace PhotoOrganiser.DataBase
             }
         }
 
-        public SQLiteConnection GetConnection()
+        public static void AddImage(string hash, string name, string extension, string path, bool duplicate, bool noExif)
         {
-            return new SQLiteConnection($"Data Source={dbPath};Version=3;");
-        }
-
-        public static void AddImage(string hash, string name, string extension, string path, bool duplicate)
-        {
-            
+            if (connection == null)
+                return;
 
             using (SQLiteCommand cmd = new SQLiteCommand(sqlInsertString, connection))
             {
@@ -50,6 +44,7 @@ namespace PhotoOrganiser.DataBase
                 cmd.Parameters.Add("@Extension", System.Data.DbType.String).Value = extension;
                 cmd.Parameters.Add("@Path", System.Data.DbType.String).Value = path;
                 cmd.Parameters.Add("@Duplicate", System.Data.DbType.Boolean).Value = duplicate;
+                cmd.Parameters.Add("@NoExif", System.Data.DbType.Boolean).Value = noExif;
 
                 int rowsAffected = cmd.ExecuteNonQuery();
                 if(rowsAffected > 0)

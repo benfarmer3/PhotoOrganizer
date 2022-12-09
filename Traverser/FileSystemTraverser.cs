@@ -1,27 +1,31 @@
-﻿using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
-using PhotoOrganiser.DataBase;
-using System.Collections;
+﻿using PhotoOrganiser.DataBase;
+using System.Diagnostics;
 
 namespace PhotoOrganiser.Traverser
 {
     internal class FileSystemTraverser
     {
 
-       // private readonly ILogger _logger;
 
-        private Hashtable photoHash = new Hashtable();
+        // private readonly ILogger _logger;
+        private Stopwatch hashTime = new Stopwatch();
+        List<TimeSpan> averageNoExif = new List<TimeSpan>();
+        List<TimeSpan> averageExif = new List<TimeSpan>();
+
+        private HashSet<string> photoDuplicateHash = new HashSet<string>();
         private int totalPhotos = 0;
         private int totalNoExifPhotos = 0;
         private int totalDuplicatePhotos = 0;
 
         private Action<string, string, string> _updateValues; 
         private Action<string> _updateCurrentFolder;
+        private Action<string, string> _updateAverages;
 
-        public FileSystemTraverser(Action<string,string, string> updateValues, Action<string> updateCurrentFolder)
+        public FileSystemTraverser(Action<string,string, string> updateValues, Action<string> updateCurrentFolder, Action<string, string> updateAverages)
         {
             _updateValues = updateValues;
             _updateCurrentFolder = updateCurrentFolder;
+            _updateAverages = updateAverages;
         }
 
         static string[] mediaExtensions = {
@@ -55,7 +59,6 @@ namespace PhotoOrganiser.Traverser
             {
                 //log.Add(e.Message);
             }
-            _updateCurrentFolder(root.FullName);
 
             if (files != null)
             {
@@ -63,6 +66,8 @@ namespace PhotoOrganiser.Traverser
                 {
                     if (IsMediaFile(file.FullName))
                     {
+                        _updateCurrentFolder(file.FullName);
+
                         StoreImageData(file);
                         _updateValues(totalPhotos.ToString(), totalDuplicatePhotos.ToString(), totalNoExifPhotos.ToString());
                     }
@@ -78,83 +83,56 @@ namespace PhotoOrganiser.Traverser
 
         }
 
-        private void GetImageExifData(FileInfo file)
-        {
-            var hash = GenerateHashFromFile(file);
-            if(hash == null)
-            {
-                totalNoExifPhotos++;
-                return;
-            }
-            var name = file.Name;
-            var extension = file.Extension;
-            var path = file.FullName;
-
-            if (photoHash.ContainsKey(hash))
-            {
-                totalDuplicatePhotos++;
-                DataBaseManager.AddImage(hash, name, extension, path, true);
-                return;
-            }
-            photoHash.Add(hash,file.Name);
-            DataBaseManager.AddImage(hash, name, extension, path, false);
-        }
-
-        internal static string GetStringSha256Hash(string text)
-        {
-            if (String.IsNullOrEmpty(text))
-            {
-                return String.Empty;
-            }
-
-            using (var sha = new System.Security.Cryptography.SHA256Managed())
-            {
-                byte[] textData = System.Text.Encoding.UTF8.GetBytes(text);
-                byte[] hash = sha.ComputeHash(textData);
-                return BitConverter.ToString(hash).Replace("-", String.Empty);
-            }
-        }
-
         private void StoreImageData(FileInfo image)
         {
-            GetImageExifData(image);
+            var photoInfo = GetImageInformation(image);
+            DataBaseManager.AddImage(photoInfo.hash, photoInfo.name, photoInfo.extension, photoInfo.path, photoInfo.duplicate, photoInfo.noExif);
             totalPhotos++;
             _updateValues(totalPhotos.ToString(), totalDuplicatePhotos.ToString(), totalNoExifPhotos.ToString());
         }
 
-        public string? GenerateHashFromFile(FileInfo file)
+        private PhotoInformation GetImageInformation(FileInfo file)
         {
-            var dateTaken = GetDateTakenFromImage(file.FullName).ToString();
-            if (dateTaken == null)
+            PhotoInformation photoInfo;
+
+            if (Utilities.Utilities.HasExif(file))
             {
-                return null;
+                hashTime.Start();
+                var hash = Utilities.Utilities.GenerateHashFromFile(file);
+                hashTime.Stop();
+                averageExif.Add(hashTime.Elapsed);
+                hashTime.Restart();
+                photoInfo = new PhotoInformation(hash, file.Name, file.Extension, file.FullName, false, true);
             }
-            string imageData = dateTaken + file.Name + file.Length;
-            return GetStringSha256Hash(imageData);
+            else
+            {
+                totalNoExifPhotos++;
+                hashTime.Start();
+                var hash = Utilities.Utilities.GenerateHashFromFileNoExif(file);
+                hashTime.Stop();
+                averageNoExif.Add(hashTime.Elapsed);
+                hashTime.Restart();
+
+                photoInfo = new PhotoInformation(hash, file.Name, file.Extension, file.FullName);
+            }
+
+            if (photoDuplicateHash.Contains(photoInfo.hash))
+            {
+                totalDuplicatePhotos++;
+                photoInfo.duplicate = true;
+                return photoInfo;
+            }
+            _updateAverages(Mean(averageExif).ToString(), Mean(averageNoExif).ToString());
+            photoDuplicateHash.Add(photoInfo.hash);
+            return photoInfo;
         }
 
-        public static DateTime? GetDateTakenFromImage(string path)
-        {
-            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
 
-                var directories = ImageMetadataReader.ReadMetadata(fs);
+        public TimeSpan Mean(IEnumerable<TimeSpan> source) => TimeSpan.FromTicks(source.Aggregate((m: 0L, r: 0L, n: source.Count()), (tm, s) => {
+            var r = tm.r + s.Ticks % tm.n;
+            return (tm.m + s.Ticks / tm.n + r / tm.n, r % tm.n, tm.n);
+        }).m);
 
-                var subIfdDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
-
-                try
-                {
-                    var dateTime = subIfdDirectory?.GetDateTime(ExifDirectoryBase.TagDateTimeOriginal);
-                    return dateTime;
-
-                }
-                catch
-                {
-                    return null;
-                }
-
-            }
-        }
 
     }
 }
