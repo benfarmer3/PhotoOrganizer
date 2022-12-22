@@ -11,7 +11,7 @@ namespace PhotoOrganiser.DataBase
         //SQL Commands
         private static string sqlCreateString = "CREATE TABLE Photos (Name text NOT NULL, Extension text NOT NULL,Path text NOT NULL, Duplicate bit NOT NULL, NoExif text NOT NULL);";
         private static string sqlInsertString = "insert into Photos ([Name], [Extension], [Path], [NoExif], [Duplicate]) values(@Name,@Extension, @Path, @Duplicate, @NoExif)";
-        
+
         private static SQLiteConnection connection;
 
         public static void CreateDb()
@@ -32,7 +32,7 @@ namespace PhotoOrganiser.DataBase
             }
         }
 
-        public static void AddImage(string hash, string name, string extension, string path, bool duplicate, bool noExif)
+        public static void AddFile(string hash, string name, string extension, string path, bool duplicate, bool noExif)
         {
             if (connection == null)
                 return;
@@ -47,7 +47,7 @@ namespace PhotoOrganiser.DataBase
                 cmd.Parameters.Add("@NoExif", System.Data.DbType.Boolean).Value = noExif;
 
                 int rowsAffected = cmd.ExecuteNonQuery();
-                if(rowsAffected > 0)
+                if (rowsAffected > 0)
                 {
                     return;
                 }

@@ -25,11 +25,16 @@ namespace PhotoOrganiser
             await Task.Run(() => traverser.StartTraversal(sourceFolder));
 
         }
+        private void StopButton_Click(object sender, EventArgs e)
+        {
+            traverser.Stop();
+        }
 
         public void UpdateFolder(string currentDir)
         {
             ChangeTextBox(Searching, currentDir);
         }
+
         public void UpdateAverages(string averageExif, string averageNoExif)
         {
             ChangeTextBox(AverageScanTimeExif, averageExif);
@@ -42,6 +47,7 @@ namespace PhotoOrganiser
             ChangeTextBox(TotalDuplicates, totalDupplicates);
             ChangeTextBox(TotalNoExif, totalExif);
         }
+
 
         public void ChangeTextBox(TextBox textBox, string text)
         {
@@ -57,7 +63,7 @@ namespace PhotoOrganiser
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            if(Settings.Default.SourceFolder != null)
+            if (Settings.Default.SourceFolder != null)
             {
                 this.SourceFolder.Text = Settings.Default.SourceFolder;
             }
@@ -69,5 +75,7 @@ namespace PhotoOrganiser
 
             Settings.Default.Save();
         }
+
+
     }
 }

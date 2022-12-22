@@ -47,6 +47,7 @@
             this.AverageScanTimeNoExif = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.StopButton = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -102,7 +103,7 @@
             // TotalPhotos
             // 
             this.TotalPhotos.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.TotalPhotos.Location = new System.Drawing.Point(423, 403);
+            this.TotalPhotos.Location = new System.Drawing.Point(423, 463);
             this.TotalPhotos.Name = "TotalPhotos";
             this.TotalPhotos.Size = new System.Drawing.Size(300, 37);
             this.TotalPhotos.TabIndex = 5;
@@ -110,7 +111,7 @@
             // TotalDuplicates
             // 
             this.TotalDuplicates.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.TotalDuplicates.Location = new System.Drawing.Point(423, 446);
+            this.TotalDuplicates.Location = new System.Drawing.Point(423, 506);
             this.TotalDuplicates.Name = "TotalDuplicates";
             this.TotalDuplicates.Size = new System.Drawing.Size(300, 37);
             this.TotalDuplicates.TabIndex = 6;
@@ -118,7 +119,7 @@
             // TotalNoExif
             // 
             this.TotalNoExif.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.TotalNoExif.Location = new System.Drawing.Point(423, 489);
+            this.TotalNoExif.Location = new System.Drawing.Point(423, 549);
             this.TotalNoExif.Name = "TotalNoExif";
             this.TotalNoExif.Size = new System.Drawing.Size(300, 37);
             this.TotalNoExif.TabIndex = 7;
@@ -127,7 +128,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(174, 410);
+            this.label3.Location = new System.Drawing.Point(174, 470);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(70, 30);
             this.label3.TabIndex = 8;
@@ -137,7 +138,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label4.Location = new System.Drawing.Point(174, 453);
+            this.label4.Location = new System.Drawing.Point(174, 513);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(175, 30);
             this.label4.TabIndex = 9;
@@ -147,7 +148,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label5.Location = new System.Drawing.Point(174, 496);
+            this.label5.Location = new System.Drawing.Point(174, 556);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(144, 30);
             this.label5.TabIndex = 10;
@@ -156,7 +157,7 @@
             // Searching
             // 
             this.Searching.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.Searching.Location = new System.Drawing.Point(174, 217);
+            this.Searching.Location = new System.Drawing.Point(174, 277);
             this.Searching.Multiline = true;
             this.Searching.Name = "Searching";
             this.Searching.Size = new System.Drawing.Size(549, 180);
@@ -166,7 +167,7 @@
             // 
             this.SearchingString.AutoSize = true;
             this.SearchingString.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.SearchingString.Location = new System.Drawing.Point(55, 220);
+            this.SearchingString.Location = new System.Drawing.Point(55, 280);
             this.SearchingString.Name = "SearchingString";
             this.SearchingString.Size = new System.Drawing.Size(119, 30);
             this.SearchingString.TabIndex = 12;
@@ -176,7 +177,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label6.Location = new System.Drawing.Point(735, 410);
+            this.label6.Location = new System.Drawing.Point(735, 470);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(238, 30);
             this.label6.TabIndex = 14;
@@ -185,7 +186,7 @@
             // AverageScanTimeExif
             // 
             this.AverageScanTimeExif.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.AverageScanTimeExif.Location = new System.Drawing.Point(1050, 407);
+            this.AverageScanTimeExif.Location = new System.Drawing.Point(1050, 467);
             this.AverageScanTimeExif.Name = "AverageScanTimeExif";
             this.AverageScanTimeExif.Size = new System.Drawing.Size(300, 37);
             this.AverageScanTimeExif.TabIndex = 13;
@@ -194,7 +195,7 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label7.Location = new System.Drawing.Point(735, 456);
+            this.label7.Location = new System.Drawing.Point(735, 516);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(273, 30);
             this.label7.TabIndex = 16;
@@ -203,7 +204,7 @@
             // AverageScanTimeNoExif
             // 
             this.AverageScanTimeNoExif.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.AverageScanTimeNoExif.Location = new System.Drawing.Point(1050, 453);
+            this.AverageScanTimeNoExif.Location = new System.Drawing.Point(1050, 513);
             this.AverageScanTimeNoExif.Name = "AverageScanTimeNoExif";
             this.AverageScanTimeNoExif.Size = new System.Drawing.Size(300, 37);
             this.AverageScanTimeNoExif.TabIndex = 15;
@@ -220,6 +221,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.StopButton);
             this.tabPage1.Controls.Add(this.label1);
             this.tabPage1.Controls.Add(this.label7);
             this.tabPage1.Controls.Add(this.StartButton);
@@ -244,6 +246,16 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // StopButton
+            // 
+            this.StopButton.Location = new System.Drawing.Point(174, 206);
+            this.StopButton.Name = "StopButton";
+            this.StopButton.Size = new System.Drawing.Size(549, 50);
+            this.StopButton.TabIndex = 17;
+            this.StopButton.Text = "Stop";
+            this.StopButton.UseVisualStyleBackColor = true;
+            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
             // 
             // tabPage2
             // 
@@ -294,5 +306,6 @@
         private TabControl tabControl1;
         private TabPage tabPage1;
         private TabPage tabPage2;
+        private Button StopButton;
     }
 }

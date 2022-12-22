@@ -1,8 +1,6 @@
-﻿using PhotoOrganiser.Utilities;
-
-namespace PhotoOrganiser.Traverser
+﻿namespace PhotoOrganiser.Traverser
 {
-    public class PhotoInformation 
+    public class MediaInformation
     {
         public string hash { get; set; }
         public string name { get; set; }
@@ -11,7 +9,7 @@ namespace PhotoOrganiser.Traverser
         public bool duplicate { get; set; }
         public bool noExif { get; set; }
 
-        public PhotoInformation(string hash, string name, string extension, string path, bool duplicate = false, bool noExif = false)
+        public MediaInformation(string hash, string name, string extension, string path, bool duplicate = false, bool noExif = false)
         {
             this.name = name;
             this.extension = extension;
@@ -20,6 +18,6 @@ namespace PhotoOrganiser.Traverser
             this.noExif = noExif;
             this.hash = hash;
 
-        } 
+        }
     }
 }
